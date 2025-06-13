@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض الدرس - منصة التعليم الإلكتروني</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html" class="nav-link"><h2>🎓 منصة التعليم</h2></a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">الرئيسية</a>
+                <a href="teachers.html" class="nav-link">المعلمون</a>
+                <a href="lessons.html" class="nav-link">الدروس</a>
+            </div>
+            <div class="nav-auth" id="navAuth">
+                <a href="login.html" class="btn btn-outline">تسجيل الدخول</a>
+                <a href="register.html" class="btn btn-primary">إنشاء حساب</a>
+            </div>
+            <div class="nav-user hidden" id="navUser">
+                <div class="user-dropdown">
+                    <button class="user-name-btn" id="userName" onclick="toggleUserMenu()"></button>
+                    <div class="user-menu" id="userMenu">
+                        <a href="teacher-dashboard.html" id="dashboardLink" class="hidden user-menu-item">📊 لوحة التحكم</a>
+                        <a href="profile.html" class="user-menu-item">👤 عرض الملف الشخصي</a>
+                        <button onclick="openSettings()" class="user-menu-item">⚙️ الإعدادات</button>
+                        <button onclick="logout()" class="user-menu-item logout-btn">🚪 تسجيل الخروج</button>
+                        <div class="user-email" id="userEmail">example@gmail.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- القائمة الجانبية للشاشات الصغيرة -->
+    <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" onclick="closeMobileSidebar()"></div>
+    <div class="mobile-sidebar" id="mobileSidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 600;">القائمة</h3>
+            <button onclick="closeMobileSidebar()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <a href="index.html" style="padding: 1rem; border-radius: 8px; text-decoration: none; color: inherit; border: 1px solid var(--border-color);">الرئيسية</a>
+            <a href="teachers.html" style="padding: 1rem; border-radius: 8px; text-decoration: none; color: inherit; border: 1px solid var(--border-color);">المعلمون</a>
+            <a href="lessons.html" style="padding: 1rem; border-radius: 8px; text-decoration: none; color: inherit; border: 1px solid var(--border-color);">الدروس</a>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <main style="padding: 2rem 0; min-height: 80vh;">
+        <div class="container">
+            <!-- مسار التنقل -->
+            <nav style="margin-bottom: 2rem; font-size: 0.875rem; color: #6B7280;">
+                <a href="lessons.html" style="color: #2563EB; text-decoration: none;">الدروس</a>
+                <span style="margin: 0 0.5rem;">/</span>
+                <span id="breadcrumbTitle">عرض الدرس</span>
+            </nav>
+
+            <div id="lessonContent">
+                <div class="loading" style="text-align: center; padding: 4rem;">جاري تحميل الدرس...</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script>
+        let currentLesson = null;
+        let hasLiked = false;
+        // تتبع حالة الإعجاب
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadLesson();
+        });
+
+        // التحقق من حالة المصادقة
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth-status');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        currentUser = data.user;
+                    } else {
+                        currentUser = null;
+                    }
+                    updateNavbar();
+                } else {
+                    currentUser = null;
+                    updateNavbar();
+                }
+            } catch (error) {
+                console.error('خطأ في التحقق من المصادقة:', error);
+                currentUser = null;
+                updateNavbar();
+            }
+        }
+
+        // تحديث شريط التنقل
+        function updateNavbar() {
+            const navAuth = document.getElementById('navAuth');
+            const navUser = document.getElementById('navUser');
+            const userName = document.getElementById('userName');
+            const dashboardLink = document.getElementById('dashboardLink');
+
+            if (!navAuth || !navUser) {
+                return;
+            }
+
+            if (currentUser) {
+                navAuth.classList.add('hidden');
+                navUser.classList.remove('hidden');
+                if (userName) {
+                    userName.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+                }
+                
+                const userEmail = document.getElementById('userEmail');
+                if (userEmail) {
+                    userEmail.textContent = currentUser.email;
+                }
+                
+                if (dashboardLink) {
+                    if (currentUser.userType === 'teacher') {
+                        dashboardLink.classList.remove('hidden');
+                    } else {
+                        dashboardLink.classList.add('hidden');
+                    }
+                }
+            } else {
+                navAuth.classList.remove('hidden');
+                navUser.classList.add('hidden');
+            }
+        }
+
+        // دالة تنسيق التاريخ الميلادي
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            };
+            // استخدام التقويم الميلادي بدلاً من الهجري
+            return date.toLocaleDateString('ar-EG', options);
+        }
+
+        async function loadLesson() {
+            // الحصول على معرف الدرس من الرابط
+            const urlParams = new URLSearchParams(window.location.search);
+            const lessonId = urlParams.get('id');
+
+            if (!lessonId) {
+                showError('معرف الدرس غير صحيح');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/lessons/${lessonId}`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        showError('الدرس غير موجود');
+                    } else {
+                        showError('خطأ في تحميل الدرس');
+                    }
+                    return;
+                }
+
+                currentLesson = await response.json();
+                
+                // التحقق من حالة الإعجاب
+                await checkLikeStatus(lessonId);
+                
+                displayLesson(currentLesson);
+            
+            // تطبيق نمط زر اللايك حسب الحالة
+            updateLikeButtonStyle();
+                
+                // تسجيل مشاهدة
+                incrementViews(lessonId);
+                
+            } catch (error) {
+                console.error('خطأ في تحميل الدرس:', error);
+                showError('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        function displayLesson(lesson) {
+            document.title = `${lesson.title} - منصة التعليم الإلكتروني`;
+            document.getElementById('breadcrumbTitle').textContent = lesson.title;
+
+            const lessonContent = document.getElementById('lessonContent');
+            const youtubeVideoId = getYouTubeVideoId(lesson.videoUrl || '');
+            
+            lessonContent.innerHTML = `
+                <div class="lesson-view-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem; align-items: start;">
+                    <!-- المحتوى الرئيسي -->
+                    <div>
+                        <!-- مشغل الفيديو/المحتوى -->
+                        <div class="lesson-view-video-card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
+                            ${renderMediaPlayer(lesson, youtubeVideoId)}
+                        </div>
+
+                        <!-- قسم ملفات PDF -->
+${lesson.pdfUrls && lesson.pdfUrls.length > 0 ? `
+<div class="lesson-view-pdf-card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 2rem; background: var(--card-bg); border: 1px solid var(--border-color);">
+    <div style="padding: 2rem; text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📄</div>
+        <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-color);">ملفات PDF مرفقة (${lesson.pdfUrls.length})</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">يمكنك تحميل أو عرض الملفات المرفقة مع الدرس</p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            ${lesson.pdfUrls.map((url, index) => `
+                <button onclick="openPDF('${url}')" class="btn btn-primary" style="padding: 1rem 1.5rem; font-size: 0.875rem;">
+                    📄 ملف PDF ${index + 1}
+                </button>
+            `).join('')}
+        </div>
+    </div>
+</div>
+` : ''}
+
+                        <!-- معلومات الدرس -->
+                        <div class="lesson-view-info-card" style="padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                                <span style="background: #EBF4FF; color: #2563EB; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">${lesson.subject}</span>
+${lesson.grade ? `<span style="background: #F3F4F6; color: #374151; padding: 0.5rem 1rem; border-radius: 8px;">🎓 ${lesson.grade}</span>` : ''}
+                            </div>
+
+                            <h1 style="font-size: 2.5rem; font-weight: 700; color: #1F2937; margin-bottom: 1rem; line-height: 1.2;">${lesson.title}</h1>
+                            
+                            <div class="lesson-stats-container" style="display: flex; gap: 2rem; margin-bottom: 1.5rem; font-size: 0.875rem; color: #6B7280; flex-wrap: wrap;">
+                                <span class="lesson-stats-views">👁️ ${lesson.views || 0} مشاهدة</span>
+                                <span class="lesson-stats-likes">👍 ${lesson.likes || 0} إعجاب</span>
+                                <span>📅 ${formatDate(lesson.createdAt)}</span>
+                            </div>
+
+                            <p style="font-size: 1.125rem; color: #374151; line-height: 1.7; margin-bottom: 2rem;">${lesson.description}</p>
+
+                            <!-- أزرار التفاعل -->
+                            <div class="lesson-actions" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <button onclick="likeLesson()" class="btn btn-outline" id="likeBtn">
+                                    👍 أعجبني (${lesson.likes || 0})
+                                </button>
+                                <button onclick="shareLesson()" class="btn btn-outline">
+                                    📤 مشاركة
+                                </button>
+                                <button onclick="copyLessonLink()" class="btn btn-outline">🔗 نسخ الرابط</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- الشريط الجانبي -->
+                    <div>
+                        <!-- معلومات المعلم -->
+                        <div class="lesson-view-teacher-card" style="padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
+                            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: #1F2937;">معلومات المعلم</h3>
+                            
+                            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #2563EB, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: 700;">
+                                    ${lesson.teacherName.charAt(0)}
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 1.125rem; font-weight: 600; color: #1F2937; margin-bottom: 0.25rem;">${lesson.teacherName}</h4>
+                                    <!--<p style="color: #2563EB; font-weight: 500;">${lesson.teacherSpecialization}</p>-->
+                                </div>
+                            </div>
+
+                            <div style="background: #F9FAFB; padding: 1rem; border-radius: 8px; font-size: 0.875rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="color: #6B7280;">التقييم:</span>
+                                    <span style="color: #F59E0B;">⭐ 4.9</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="color: #6B7280;">الطلاب:</span>
+                                    <span>247</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #6B7280;">الدروس:</span>
+                                    <span>18</span>
+                                </div>
+                            </div>
+
+                            <a href="profile.html" class="btn btn-outline" style="width: 100%; margin-top: 1rem; text-decoration: none; display: block; text-align: center;">
+                                عرض الملف الشخصي
+                            </a>
+                        </div>
+
+                        <!-- موارد إضافية -->
+                        ${renderAdditionalResources(lesson)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMediaPlayer(lesson, youtubeVideoId) {
+    let content = '';
+    
+    // عرض الفيديو إذا كان موجوداً
+    if (youtubeVideoId) {
+        content += `
+            <div class="lesson-video-container" style="aspect-ratio: 16/9; margin-bottom: 1rem;">
+                <iframe 
+                    src="https://www.youtube.com/embed/${youtubeVideoId}" 
+                    title="${lesson.title}"
+                    style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                </iframe>
+            </div>
+        `;
+    }
+    
+    // عرض ملفات PDF إذا كانت موجودة
+    if (lesson.pdfUrls && lesson.pdfUrls.length > 0) {
+        lesson.pdfUrls.forEach((pdfUrl, index) => {
+            const processedPdfUrl = processPDFUrl(pdfUrl);
+            console.log(`PDF URL ${index + 1} loaded:`, processedPdfUrl);
+            
+            if (processedPdfUrl) {
+                // تضمين مباشر للـ PDF
+                content += `
+                    <div class="lesson-pdf-container" style="aspect-ratio: 16/9; margin-bottom: 1rem;">
+                        <div style="background: #F3F4F6; padding: 0.5rem; text-align: center; font-size: 0.875rem; color: #6B7280;">
+                            ملف PDF ${index + 1}
+                        </div>
+                        <iframe 
+                            src="${processedPdfUrl}" 
+                            title="ملف PDF ${index + 1} - ${lesson.title}"
+                            style="width: 100%; height: 100%; border: none;"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                `;
+            }
+        });
+    }
+    
+    // إذا لم يكن هناك محتوى
+    if (!content) {
+        content = `
+            <div style="aspect-ratio: 16/9; background: linear-gradient(135deg, #2563EB, #059669); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 2rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📚</div>
+                <h3 style="font-size: 1.5rem; font-weight: 600;">محتوى نصي</h3>
+                <p>هذا الدرس يحتوي على محتوى نصي فقط</p>
+            </div>
+        `;
+    }
+    
+    return content;
+    }
+
+        /*function renderAdditionalResources(lesson) {
+    return `
+        <div style="padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">معلومات إضافية</h3>
+            <div style="space-y: 1rem;">
+                <div style="padding: 1rem; background: var(--card-bg, #F9FAFB); border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">المادة:</div>
+                    <div>${lesson.subject}</div>
+                </div>
+                <div style="padding: 1rem; background: var(--card-bg, #F9FAFB); border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">الصف:</div>
+                    <div>${lesson.grade}</div>
+                </div>
+                ${lesson.pdfUrl ? `
+                <div style="padding: 1rem; background: var(--card-bg, #F9FAFB); border-radius: 8px;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">ملف PDF:</div>
+                    <button onclick="openPDF()" class="btn btn-outline" style="font-size: 0.875rem;">📄 فتح الملف</button>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+        }*/
+        function renderAdditionalResources(lesson) {
+    return `
+        <div style="padding: 2rem; border-radius: 16px; box-shadow: var(--shadow-md); background: var(--card-bg); border: 1px solid var(--border-color);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-color);">معلومات إضافية</h3>
+            <div style="space-y: 1rem;">
+                <div style="padding: 1rem; background: var(--section-bg); border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border-light);">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-color);">المادة:</div>
+                    <div style="color: var(--text-secondary);">${lesson.subject}</div>
+                </div>
+                <div style="padding: 1rem; background: var(--section-bg); border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border-light);">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-color);">الصف:</div>
+                    <div style="color: var(--text-secondary);">${lesson.grade}</div>
+                </div>
+                ${lesson.videoUrl ? `
+                <div style="padding: 1rem; background: var(--section-bg); border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border-light);">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-color);">رابط YouTube:</div>
+                    <button onclick="window.open('${lesson.videoUrl}', '_blank')" class="btn btn-outline" style="font-size: 0.875rem;">📹 مشاهدة على YouTube</button>
+                </div>
+                ` : ''}
+                ${lesson.pdfUrls && lesson.pdfUrls.length > 0 ? `
+                <div style="padding: 1rem; background: var(--section-bg); border-radius: 8px; border: 1px solid var(--border-light);">
+                    <div style="font-weight: 600; margin-bottom: 1rem; color: var(--text-color);">ملفات PDF (${lesson.pdfUrls.length}):</div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        ${lesson.pdfUrls.map((url, index) => `
+                            <button onclick="openPDF('${url}')" class="btn btn-outline" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                                📄 ملف PDF ${index + 1}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+        }
+
+        function openPDF() {
+            console.log('PDF URL:', currentLesson?.pdfUrl);
+            if (currentLesson && currentLesson.pdfUrl) {
+                const processedUrl = processPDFUrl(currentLesson.pdfUrl);
+                window.open(processedUrl, '_blank');
+            } else {
+                alert('لا يوجد ملف PDF مرفق مع هذا الدرس');
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('lessonContent').innerHTML = `
+                <div style="text-align: center; padding: 4rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
+                    <h2 style="font-size: 1.5rem; font-weight: 600; color: #EF4444; margin-bottom: 1rem;">${message}</h2>
+                    <a href="lessons.html" class="btn btn-primary">← العودة إلى الدروس</a>
+                </div>
+            `;
+        }
+
+        async function incrementViews(lessonId) {
+            try {
+                await fetch(`/api/lessons/${lessonId}/view`, { method: 'POST' });
+            } catch (error) {
+                console.error('خطأ في تسجيل المشاهدة:', error);
+            }
+        }
+
+        async function checkLikeStatus(lessonId) {
+            try {
+                const response = await fetch(`/api/lessons/${lessonId}/like-status`);
+                if (response.ok) {
+                    const data = await response.json();
+                    hasLiked = data.hasLiked;
+                }
+            } catch (error) {
+                console.error('خطأ في التحقق من حالة الإعجاب:', error);
+            }
+        }
+
+        async function likeLesson() {
+            if (!currentLesson) return;
+
+            const likeBtn = document.getElementById('likeBtn');
+            const originalText = likeBtn.innerHTML;
+            likeBtn.disabled = true;
+            likeBtn.innerHTML = '⏳ جاري المعالجة...';
+            
+            try {
+                const response = await fetch(`/api/lessons/${currentLesson.id}/like`, { method: 'POST' });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    hasLiked = data.hasLiked;
+                    currentLesson.likes = data.likes;
+                    
+                    // تحديث الزر
+                    if (hasLiked) {
+                        likeBtn.innerHTML = `👍 تم الإعجاب (${currentLesson.likes})`;
+                        likeBtn.style.background = '#059669';
+                        likeBtn.style.color = 'white';
+                        likeBtn.style.borderColor = '#059669';
+                    } else {
+                        likeBtn.innerHTML = `👍 أعجبني (${currentLesson.likes})`;
+                        likeBtn.style.background = 'transparent';
+                        likeBtn.style.color = '#2563EB';
+                        likeBtn.style.borderColor = '#2563EB';
+                    }
+                    
+                    // تحديث العداد في المعلومات فورياً
+                    updateStatsDisplay();
+                    
+                } else {
+                    alert('حدث خطأ في التقييم');
+                    likeBtn.innerHTML = originalText;
+                }
+                
+            } catch (error) {
+                console.error('خطأ في الإعجاب:', error);
+                alert('حدث خطأ في الاتصال بالخادم');
+                likeBtn.innerHTML = originalText;
+            } finally {
+                likeBtn.disabled = false;
+            }
+        }
+
+        function updateStatsDisplay() {
+            // تحديث عدد الإعجابات في قسم الإحصائيات
+            const likesSpan = document.querySelector('.lesson-stats-likes');
+            if (likesSpan) {
+                likesSpan.textContent = `👍 ${currentLesson.likes || 0} إعجاب`;
+            }
+        }
+
+        function updateLikeButtonStyle() {
+            const likeBtn = document.getElementById('likeBtn');
+            if (!likeBtn) return;
+            
+            if (hasLiked) {
+                likeBtn.innerHTML = `👍 تم الإعجاب (${currentLesson.likes || 0})`;
+                likeBtn.style.background = '#059669';
+                likeBtn.style.color = 'white';
+                likeBtn.style.borderColor = '#059669';
+            } else {
+                likeBtn.innerHTML = `👍 أعجبني (${currentLesson.likes || 0})`;
+                likeBtn.style.background = 'transparent';
+                likeBtn.style.color = '#2563EB';
+                likeBtn.style.borderColor = '#2563EB';
+            }
+        }
+
+        function shareLesson() {
+            const url = window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: currentLesson.title,
+                    text: currentLesson.description,
+                    url: url
+                }).catch(error => {
+                    copyToClipboard(url);
+                });
+            } else {
+                copyToClipboard(url);
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('تم نسخ رابط الدرس إلى الحافظة');
+            }).catch(() => {
+                alert('تعذر نسخ الرابط');
+            });
+        }
+
+
+
+        // دوال القائمة الجانبية للشاشات الصغيرة
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('mobileSidebarOverlay');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('mobileSidebarOverlay');
+            
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // دوال إدارة المستخدم
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('userMenu');
+            userMenu.classList.toggle('show');
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                currentUser = null;
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('خطأ في تسجيل الخروج:', error);
+                alert('حدث خطأ في تسجيل الخروج');
+            }
+        }
+
+        function openSettings() {
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+                settingsModal.style.display = 'block';
+            }
+        }
+
+        function copyLessonLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        alert('تم نسخ رابط الدرس');
+    });
+}
+
+function openPDF(pdfUrl) {
+    if (pdfUrl) {
+        const processedUrl = processPDFUrl(pdfUrl);
+        if (processedUrl) {
+            window.open(processedUrl, '_blank');
+        } else {
+            window.open(pdfUrl, '_blank');
+        }
+    } else if (currentLesson && currentLesson.pdfUrls && currentLesson.pdfUrls.length > 0) {
+        // إذا لم يتم تمرير رابط محدد، افتح أول ملف PDF
+        openPDF(currentLesson.pdfUrls[0]);
+    }
+}
+
+
+    </script>
+</body>
+</html>

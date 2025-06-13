@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدروس - منصة التعليم الإلكتروني</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html" class="nav-link"><h2>🎓 منصة التعليم</h2></a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">الرئيسية</a>
+                <a href="teachers.html" class="nav-link">المعلمون</a>
+                <a href="lessons.html" class="nav-link active">الدروس</a>
+            </div>
+            <div class="nav-auth" id="navAuth">
+                <a href="login.html" class="btn btn-outline">تسجيل الدخول</a>
+                <a href="register.html" class="btn btn-primary">إنشاء حساب</a>
+            </div>
+            <div class="nav-user hidden" id="navUser">
+                <div class="user-dropdown">
+                    <button class="user-name-btn" id="userName" onclick="toggleUserMenu()"></button>
+                    <div class="user-menu" id="userMenu">
+                        <a href="teacher-dashboard.html" id="dashboardLink" class="hidden user-menu-item">📊 لوحة التحكم</a>
+                        <button onclick="openSettings()" class="user-menu-item">⚙️ الإعدادات</button>
+                        <button onclick="logout()" class="user-menu-item logout-btn">🚪 تسجيل الخروج</button>
+                        <div class="user-email" id="userEmail">example@gmail.com</div>
+                    </div>
+                </div>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+
+    <!-- شريط التنقل المحمول -->
+    <div class="mobile-nav-bar">
+        <div class="container">
+            <div class="mobile-nav-links">
+                <a href="index.html" class="mobile-nav-link">الرئيسية
+                </a>
+                <a href="teachers.html" class="mobile-nav-link">المعلمون
+                </a>
+                <a href="lessons.html" class="mobile-nav-link active">الدروس</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- القسم الرئيسي -->
+    <section class="hero" style="min-height: 50vh;">
+        <div class="container">
+            <div style="text-align: center;">
+                <div class="area"></div>
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #059669, #2563EB); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; font-size: 3rem;">📚</div>
+                <h1 style="font-size: 3rem; font-weight: 700; color: #1F2937; margin-bottom: 1rem;">مكتبة الدروس</h1>
+                <p style="font-size: 1.25rem; color: #6B7280; max-width: 600px; margin: 0 auto;">اكتشف مجموعة واسعة من الدروس التعليمية في مختلف التخصصات والمستويات</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- أدوات البحث والتصفية -->
+    <section style="padding: 2rem 0; background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
+        <div class="container">
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: center;">
+                <!-- البحث -->
+                <div style="position: relative; flex: 1; max-width: 400px;">
+                    <input type="text" id="searchInput" placeholder="ابحث في الدروس..." 
+                           style="width: 100%; padding: 12px 16px 12px 45px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 16px;">
+                    <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #6B7280;">🔍</span>
+                </div>
+
+                <!-- تصفية حسب المادة -->
+                <select id="subjectFilter" style="padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 16px;">
+                    <option value="all">جميع المواد</option>
+                </select>
+
+                <!-- ترتيب -->
+                <select id="sortBy" style="padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 16px;">
+                    <option value="newest">الأحدث</option>
+                    <option value="oldest">الأقدم</option>
+                    <option value="popular">الأكثر مشاهدة</option>
+                    <option value="title">الاسم (أ-ي)</option>
+                </select>
+            </div>
+
+            <!-- عدد النتائج -->
+            <div style="text-align: center; margin-top: 1rem;">
+                <span id="resultsCount" style="color: #6B7280; font-size: 0.875rem;">جاري التحميل...</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- قائمة الدروس -->
+    <section style="padding: 4rem 0;">
+        <div class="container">
+            <div class="lessons-grid" id="lessonsGrid">
+                <div class="loading">جاري التحميل...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>منصة التعليم</h3>
+                    <p>منصة تعليمية شاملة تهدف إلى تطوير التعليم العربي الرقمي</p>
+                </div>
+                <div class="footer-section">
+                    <h4>روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="teachers.html">المعلمون</a></li>
+                        <li><a href="lessons.html">الدروس</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>الحساب</h4>
+                    <ul>
+                        <li><a href="login.html">تسجيل الدخول</a></li>
+                        <li><a href="register.html">إنشاء حساب</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 منصة التعليم الإلكتروني. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        let allLessons = [];
+        let filteredLessons = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadLessons();
+            setupFilters();
+        });
+
+        function setupFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const subjectFilter = document.getElementById('subjectFilter');
+            const sortBy = document.getElementById('sortBy');
+
+            searchInput.addEventListener('input', filterLessons);
+            subjectFilter.addEventListener('change', filterLessons);
+            sortBy.addEventListener('change', filterLessons);
+        }
+
+        async function loadLessons() {
+            try {
+                const response = await fetch('/api/lessons');
+                allLessons = await response.json();
+                
+                // تحديث قائمة المواد
+                updateSubjectFilter();
+                
+                // عرض جميع الدروس في البداية
+                filteredLessons = [...allLessons];
+                displayLessons();
+                updateResultsCount();
+            } catch (error) {
+                console.error('خطأ في تحميل الدروس:', error);
+                document.getElementById('lessonsGrid').innerHTML = `
+                    <div class="error">
+                        <h3>خطأ في تحميل البيانات</h3>
+                        <p>تعذر تحميل قائمة الدروس. يرجى المحاولة مرة أخرى.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateSubjectFilter() {
+            const subjectFilter = document.getElementById('subjectFilter');
+            const subjects = [...new Set(allLessons.map(lesson => lesson.subject))];
+            
+            // إضافة المواد المتاحة
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectFilter.appendChild(option);
+            });
+        }
+
+        function filterLessons() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedSubject = document.getElementById('subjectFilter').value;
+            const sortOption = document.getElementById('sortBy').value;
+
+            // تصفية الدروس
+            filteredLessons = allLessons.filter(lesson => {
+                const matchesSearch = lesson.title.toLowerCase().includes(searchTerm) ||
+                                    lesson.description.toLowerCase().includes(searchTerm) ||
+                                    lesson.teacherName.toLowerCase().includes(searchTerm);
+                const matchesSubject = selectedSubject === 'all' || lesson.subject === selectedSubject;
+                return matchesSearch && matchesSubject;
+            });
+
+            // ترتيب الدروس
+            filteredLessons.sort((a, b) => {
+                switch (sortOption) {
+                    case 'newest':
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                    case 'oldest':
+                        return new Date(a.createdAt) - new Date(b.createdAt);
+                    case 'popular':
+                        return (b.views || 0) - (a.views || 0);
+                    case 'title':
+                        return a.title.localeCompare(b.title, 'ar');
+                    default:
+                        return 0;
+                }
+            });
+
+            displayLessons();
+            updateResultsCount();
+        }
+
+        function displayLessons() {
+            const lessonsGrid = document.getElementById('lessonsGrid');
+            
+            if (filteredLessons.length === 0) {
+                lessonsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">📚</div>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">لا توجد دروس</h3>
+                        <p>لم يتم العثور على دروس تطابق معايير البحث.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            lessonsGrid.innerHTML = filteredLessons.map(lesson => {
+                // تحديد الرمز حسب نوع المحتوى المتوفر
+                let thumbnailIcon = '📚';
+                if (lesson.videoUrl && lesson.pdfUrl) {
+                    thumbnailIcon = '🎬📄'; // كلاهما
+                } else if (lesson.videoUrl) {
+                    thumbnailIcon = '📹'; // فيديو فقط
+                } else if (lesson.pdfUrl) {
+                    thumbnailIcon = '📄'; // PDF فقط
+                }
+                
+                const formattedDate = formatArabicDate(lesson.createdAt);
+                
+                return `
+                    <div class="lesson-card">
+                        <div class="lesson-thumbnail">
+                            ${thumbnailIcon}
+                            <div class="lesson-duration">${lesson.duration || 30} دقيقة</div>
+                        </div>
+                        <div class="lesson-content">
+                            <div class="lesson-teacher">
+                                <span class="teacher-avatar-small">${lesson.teacherName.charAt(0)}</span>
+                                <div>
+                                    <h4>${lesson.title}</h4>
+                                    <p>${lesson.teacherName}</p>
+                                </div>
+                            </div>
+                            <p class="lesson-description">${lesson.description}</p>
+                            <div class="lesson-stats">
+                                <span>👁️ ${lesson.views || 0}</span>
+                                <span>👍 ${lesson.likes || 0}</span>
+                                <span class="lesson-subject">${lesson.subject}</span>
+                            </div>
+                            <div style="margin-bottom: 1rem; font-size: 0.875rem; color: #6B7280;">
+                                📅 ${formattedDate}
+                            </div>
+                            <a href="lesson-view.html?id=${lesson.id}" class="btn btn-primary">مشاهدة الدرس</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateResultsCount() {
+            const resultsCount = document.getElementById('resultsCount');
+            resultsCount.textContent = `تم العثور على ${filteredLessons.length} درس`;
+        }
+    </script>
+</body>
+</html>

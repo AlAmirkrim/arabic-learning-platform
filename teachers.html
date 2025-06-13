@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المعلمون - منصة التعليم الإلكتروني</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html" class="nav-link"><h2>🎓 منصة التعليم</h2></a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">الرئيسية</a>
+                <a href="teachers.html" class="nav-link active">المعلمون</a>
+                <a href="lessons.html" class="nav-link">الدروس</a>
+            </div>
+            <div class="nav-auth" id="navAuth">
+                <a href="login.html" class="btn btn-outline">تسجيل الدخول</a>
+                <a href="register.html" class="btn btn-primary">إنشاء حساب</a>
+            </div>
+            <div class="nav-user hidden" id="navUser">
+                <div class="user-dropdown">
+                    <button class="user-name-btn" id="userName" onclick="toggleUserMenu()"></button>
+                    <div class="user-menu" id="userMenu">
+                        <a href="teacher-dashboard.html" id="dashboardLink" class="hidden user-menu-item">📊 لوحة التحكم</a>
+                        <button onclick="openSettings()" class="user-menu-item">⚙️ الإعدادات</button>
+                        <button onclick="logout()" class="user-menu-item logout-btn">🚪 تسجيل الخروج</button>
+                        <div class="user-email" id="userEmail">example@gmail.com</div>
+                    </div>
+                </div>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+
+    <!-- شريط التنقل المحمول -->
+    <div class="mobile-nav-bar">
+        <div class="container">
+            <div class="mobile-nav-links">
+                <a href="index.html" class="mobile-nav-link">الرئيسية</a>
+                <a href="teachers.html" class="mobile-nav-link active">المعلمون</a>
+                <a href="lessons.html" class="mobile-nav-link">الدروس</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- القسم الرئيسي -->
+    <section class="hero" style="min-height: 50vh;">
+        <div class="container">
+            <div style="text-align: center;">
+                <div class="area"></div>
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #2563EB, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; font-size: 3rem;">🎓</div>
+                <h1 style="font-size: 3rem; font-weight: 700; color: #1F2937; margin-bottom: 1rem;">معلمونا المتميزون</h1>
+                <p style="font-size: 1.25rem; color: #6B7280; max-width: 600px; margin: 0 auto;">تعرف على نخبة من أفضل المعلمين والخبراء في مختلف التخصصات الأكاديمية والمهنية</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- قائمة المعلمين -->
+    <section style="padding: 4rem 0;">
+        <div class="container">
+            <div class="teachers-grid" id="teachersGrid">
+                <div class="loading">جاري التحميل...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الدعوة للانضمام -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>هل تريد أن تصبح معلماً؟</h2>
+                <p>انضم إلى فريق المعلمين المتميزين وشارك خبرتك مع آلاف الطلاب المتحمسين للتعلم</p>
+                <div class="cta-buttons">
+                    <a href="register.html" class="btn btn-primary btn-large">ابدأ التدريس الآن</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>منصة التعليم</h3>
+                    <p>منصة تعليمية شاملة تهدف إلى تطوير التعليم العربي الرقمي</p>
+                </div>
+                <div class="footer-section">
+                    <h4>روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="teachers.html">المعلمون</a></li>
+                        <li><a href="lessons.html">الدروس</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>الحساب</h4>
+                    <ul>
+                        <li><a href="login.html">تسجيل الدخول</a></li>
+                        <li><a href="register.html">إنشاء حساب</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 منصة التعليم الإلكتروني. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadTeachers();
+        });
+
+        async function loadTeachers() {
+            try {
+                const response = await fetch('/api/teachers');
+                const teachers = await response.json();
+                
+                const teachersGrid = document.getElementById('teachersGrid');
+                
+                if (teachers.length === 0) {
+                    teachersGrid.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">👨‍🏫</div>
+                            <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">لا يوجد معلمون حالياً</h3>
+                            <p>لم يتم العثور على معلمين مسجلين في المنصة حتى الآن.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                teachersGrid.innerHTML = teachers.map(teacher => `
+                    <div class="teacher-card">
+                        <div class="teacher-avatar">
+                            <span>${(teacher.first_name || teacher.firstName || '').charAt(0)}${(teacher.last_name || teacher.lastName || '').charAt(0)}</span>
+                        </div>
+                        <div class="teacher-info">
+                            <h3>${teacher.first_name || teacher.firstName || ''} ${teacher.last_name || teacher.lastName || ''}</h3>
+                            <p class="teacher-specialization">${teacher.specialization || 'معلم'}</p>
+                            
+                            ${teacher.bio ? `<p style="color: #6B7280; font-size: 0.875rem; margin-bottom: 1rem; line-height: 1.5;">${teacher.bio}</p>` : ''}
+                            
+                            ${teacher.experience > 0 ? `<p style="color: #6B7280; font-size: 0.875rem; margin-bottom: 1rem;"><strong>الخبرة:</strong> ${teacher.experience} ${teacher.experience === 1 ? 'سنة' : 'سنوات'}</p>` : ''}
+                            
+                            <div class="teacher-stats">
+                                <span class="stat">⭐ 4.9</span>
+                                <span class="stat">📚 ${teacher.lessonsCount || teacher.lessons_count || 0} درس</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="viewTeacherProfile(${teacher.id})">عرض الملف الشخصي</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('خطأ في تحميل المعلمين:', error);
+                document.getElementById('teachersGrid').innerHTML = `
+                    <div class="error">
+                        <h3>خطأ في تحميل البيانات</h3>
+                        <p>تعذر تحميل قائمة المعلمين. يرجى المحاولة مرة أخرى.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function viewTeacherProfile(teacherId) {
+            // الانتقال إلى صفحة الملف الشخصي للمعلم
+            window.location.href = `profile.html?id=${teacherId}`;
+        }
+    </script>
+</body>
+</html>

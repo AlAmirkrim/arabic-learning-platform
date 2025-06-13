@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة التعليم الإلكتروني</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html" class="nav-link"><h2>🎓 منصة التعليم</h2></a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">الرئيسية</a>
+                <a href="teachers.html" class="nav-link">المعلمون</a>
+                <a href="lessons.html" class="nav-link">الدروس</a>
+            </div>
+            <div class="nav-auth" id="navAuth">
+                <a href="login.html" class="btn btn-outline">تسجيل الدخول</a>
+                <a href="register.html" class="btn btn-primary">إنشاء حساب</a>
+            </div>
+            <div class="nav-user hidden" id="navUser">
+                <div class="user-dropdown">
+                    <button class="user-name-btn" id="userName" onclick="toggleUserMenu()"></button>
+                    <div class="user-menu" id="userMenu">
+                        <a href="teacher-dashboard.html" id="dashboardLink" class="hidden user-menu-item">📊 لوحة التحكم</a>
+                        <a href="profile.html" class="user-menu-item">👤 عرض الملف الشخصي</a>
+                        <button onclick="openSettings()" class="user-menu-item">⚙️ الإعدادات</button>
+                        <button onclick="logout()" class="user-menu-item logout-btn">🚪 تسجيل الخروج</button>
+                        <div class="user-email" id="userEmail">example@gmail.com</div>
+                    </div>
+                </div>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+
+    <!-- شريط التنقل المحمول -->
+    <div class="mobile-nav-bar">
+        <div class="container">
+            <div class="mobile-nav-links">
+                <a href="index.html" class="mobile-nav-link active">الرئيسية</a>
+                <a href="teachers.html" class="mobile-nav-link">المعلمون</a>
+                <a href="lessons.html" class="mobile-nav-link">الدروس</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- القسم الرئيسي -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="area"></div>
+                    <h1>منصة التعليم الإلكتروني المتقدمة</h1>
+                    <p>اكتشف عالماً جديداً من التعلم والتعليم. انضم إلى مجتمعنا المتنامي من المعلمين والطلاب المتحمسين للمعرفة والنمو.</p>
+                    <div class="hero-buttons">
+                        <a href="register.html" class="btn btn-primary btn-large">ابدأ رحلتك الآن</a>
+                        <a href="lessons.html" class="btn btn-outline btn-large">شاهد الدروس</a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" alt="طلاب يتعلمون معاً">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الإحصائيات -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number" id="studentsCount">1250</div>
+                    <div class="stat-label">مستخدم نشط</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-number" id="teachersCount">0</div>
+                    <div class="stat-label">معلم متخصص</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-number" id="lessonsCount">0</div>
+                    <div class="stat-label">درس متاح</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-number">4.9</div>
+                    <div class="stat-label">تقييم المنصة</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم المعلمين المتميزين -->
+    <section class="featured-teachers">
+        <div class="container">
+            <div class="section-header">
+                <h2>معلمونا المتميزون</h2>
+                <p>تعرف على نخبة من أفضل المعلمين في مختلف التخصصات</p>
+            </div>
+            <div class="teachers-grid" id="teachersGrid">
+                <div class="loading">جاري التحميل...</div>
+            </div>
+            <div class="section-footer">
+                <a href="teachers.html" class="btn btn-outline">عرض جميع المعلمين</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الدروس الأكثر مشاهدة -->
+    <section class="featured-lessons">
+        <div class="container">
+            <div class="section-header">
+                <h2>الدروس الأكثر مشاهدة</h2>
+                <p>اكتشف أفضل الدروس التعليمية في منصتنا</p>
+            </div>
+            <div class="lessons-grid" id="lessonsGrid">
+                <div class="loading">جاري التحميل...</div>
+            </div>
+            <div class="section-footer">
+                <a href="lessons.html" class="btn btn-outline">عرض جميع الدروس</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الدعوة للعمل -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>ابدأ رحلتك التعليمية الآن</h2>
+                <p>انضم إلى آلاف الطلاب والمعلمين واستفد من منصة تعليمية متطورة وسهلة الاستخدام</p>
+                <div class="cta-buttons">
+                    <a href="register.html" class="btn btn-primary btn-large">إنشاء حساب مجاني</a>
+                    <a href="lessons.html" class="btn btn-outline btn-large">تصفح الدروس</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>منصة التعليم</h3>
+                    <p>منصة تعليمية شاملة تهدف إلى تطوير التعليم العربي الرقمي</p>
+                </div>
+                <div class="footer-section">
+                    <h4>روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="teachers.html">المعلمون</a></li>
+                        <li><a href="lessons.html">الدروس</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>الحساب</h4>
+                    <ul>
+                        <li><a href="login.html">تسجيل الدخول</a></li>
+                        <li><a href="register.html">إنشاء حساب</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 منصة التعليم الإلكتروني. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // تحميل البيانات عند فتح الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadTeachers();
+            loadLessons();
+            loadStats();
+        });
+
+        async function loadTeachers() {
+            try {
+                const response = await fetch('/api/teachers');
+                const teachers = await response.json();
+                
+                const teachersGrid = document.getElementById('teachersGrid');
+                if (teachers.length === 0) {
+                    teachersGrid.innerHTML = '<div class="empty-state">لا يوجد معلمون مسجلون حالياً</div>';
+                    return;
+                }
+
+                // عرض أول 3 معلمين فقط
+                const featuredTeachers = teachers.slice(0, 3);
+                teachersGrid.innerHTML = featuredTeachers.map(teacher => `
+                    <div class="teacher-card">
+                        <div class="teacher-avatar">
+                            <span>${(teacher.first_name || teacher.firstName || '').charAt(0)}${(teacher.last_name || teacher.lastName || '').charAt(0)}</span>
+                        </div>
+                        <div class="teacher-info">
+                            <h3>${teacher.first_name || teacher.firstName || ''} ${teacher.last_name || teacher.lastName || ''}</h3>
+                            <p class="teacher-specialization">${teacher.specialization || 'معلم'}</p>
+                            <div class="teacher-stats">
+                                <span class="stat">⭐ 4.9</span>
+                                <span class="stat">📚 ${teacher.lessonsCount || teacher.lessons_count || 0} درس</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="viewTeacherProfile(${teacher.id})">عرض الملف الشخصي</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('خطأ في تحميل المعلمين:', error);
+                document.getElementById('teachersGrid').innerHTML = '<div class="error">خطأ في تحميل البيانات</div>';
+            }
+        }
+
+        async function loadLessons() {
+            try {
+                const response = await fetch('/api/lessons');
+                const lessons = await response.json();
+                
+                const lessonsGrid = document.getElementById('lessonsGrid');
+                if (lessons.length === 0) {
+                    lessonsGrid.innerHTML = '<div class="empty-state">لا توجد دروس متاحة حالياً</div>';
+                    return;
+                }
+
+                // عرض أول 3 دروس فقط
+                const featuredLessons = lessons.slice(0, 3);
+                lessonsGrid.innerHTML = featuredLessons.map(lesson => `
+                    <div class="lesson-card">
+                        <div class="lesson-thumbnail">
+                            ${lesson.youtubeUrl ? '📹' : '📄'}
+                            <div class="lesson-duration">${lesson.duration || 30} دقيقة</div>
+                        </div>
+                        <div class="lesson-content">
+                            <div class="lesson-teacher">
+                                <span class="teacher-avatar-small">${lesson.teacherName.charAt(0)}</span>
+                                <div>
+                                    <h4>${lesson.title}</h4>
+                                    <p>${lesson.teacherName}</p>
+                                </div>
+                            </div>
+                            <p class="lesson-description">${lesson.description}</p>
+                            <div class="lesson-stats">
+                                <span>👁️ ${lesson.views || 0}</span>
+                                <span>👍 ${lesson.likes || 0}</span>
+                                <span class="lesson-subject">${lesson.subject}</span>
+                            </div>
+                            <a href="lesson-view.html?id=${lesson.id}" class="btn btn-primary">مشاهدة الدرس</a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('خطأ في تحميل الدروس:', error);
+                document.getElementById('lessonsGrid').innerHTML = '<div class="error">خطأ في تحميل البيانات</div>';
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const [teachersResponse, lessonsResponse] = await Promise.all([
+                    fetch('/api/teachers'),
+                    fetch('/api/lessons')
+                ]);
+                
+                const teachers = await teachersResponse.json();
+                const lessons = await lessonsResponse.json();
+                
+                document.getElementById('teachersCount').textContent = teachers.length;
+                document.getElementById('lessonsCount').textContent = lessons.length;
+            } catch (error) {
+                console.error('خطأ في تحميل الإحصائيات:', error);
+            }
+        }
+
+        function viewTeacherProfile(teacherId) {
+            // إعادة توجيه إلى صفحة المعلم
+            window.location.href = `teachers.html?teacher=${teacherId}`;
+        }
+    </script>
+</body>
+</html>

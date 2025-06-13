@@ -1,0 +1,61 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "teacher@example.com",
+      "username": "معلم_تجريبي",
+      "firstName": "أحمد",
+      "lastName": "محمد",
+      "userType": "teacher",
+      "passwordHash": "$2a$10$8K1p/a0dC2VWtAoOeexIp.5XlZbK4zqNTTRJKN2n6qJtVQq1rE8GO",
+      "specialization": "الرياضيات",
+      "experience": "5 سنوات",
+      "bio": "معلم رياضيات متخصص في التعليم الإلكتروني",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "email": "student@example.com",
+      "username": "طالب_تجريبي",
+      "firstName": "فاطمة",
+      "lastName": "علي",
+      "userType": "student",
+      "passwordHash": "$2a$10$8K1p/a0dC2VWtAoOeexIp.5XlZbK4zqNTTRJKN2n6qJtVQq1rE8GO",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "lessons": [
+    {
+      "id": 1,
+      "title": "مقدمة في الجبر",
+      "description": "درس تمهيدي في أساسيات الجبر للمبتدئين",
+      "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "subject": "الرياضيات",
+      "grade": "الصف التاسع",
+      "teacherId": 1,
+      "views": 150,
+      "likes": 12,
+      "likedBy": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "title": "المعادلات الخطية",
+      "description": "شرح مفصل للمعادلات الخطية وطرق حلها",
+      "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "subject": "الرياضيات",
+      "grade": "الصف العاشر",
+      "teacherId": 1,
+      "views": 89,
+      "likes": 7,
+      "likedBy": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "nextUserId": 3,
+  "nextLessonId": 3
+}

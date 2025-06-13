@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - منصة التعليم الإلكتروني</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html" class="nav-link"><h2>🎓 منصة التعليم</h2></a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">الرئيسية</a>
+                <a href="teachers.html" class="nav-link">المعلمون</a>
+                <a href="lessons.html" class="nav-link">الدروس</a>
+            </div>
+            <div class="nav-auth">
+                <a href="login.html" class="btn btn-outline">تسجيل الدخول</a>
+                <a href="register.html" class="btn btn-primary">إنشاء حساب</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي -->
+    <main style="min-height: 80vh; display: flex; align-items: center; background: linear-gradient(135deg, #EBF4FF 0%, #E0F2FE 100%);">
+        <div class="container">
+            <div class="form-container">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #2563EB, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem;">🎓</div>
+                    <h1 style="font-size: 2rem; font-weight: 700; color: #1F2937; margin-bottom: 0.5rem;">تسجيل الدخول</h1>
+                    <p style="color: #6B7280;">أدخل بياناتك للوصول إلى حسابك</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email" class="form-label">البريد الإلكتروني</label>
+                        <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">كلمة المرور</label>
+                        <input type="password" id="password" name="password" class="form-input" placeholder="أدخل كلمة المرور" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="remember" style="margin: 0;">
+                            <span>تذكرني</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1.5rem;">تسجيل الدخول</button>
+                </form>
+
+                <div style="text-align: center; color: #6B7280;">
+                    <p>ليس لديك حساب؟ <a href="register.html" style="color: #2563EB; text-decoration: none; font-weight: 600;">أنشئ حساباً جديداً</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script>
+        // إعادة توجيه المستخدم إذا كان مسجلاً دخوله بالفعل
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('/api/auth-status');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated && data.user) {
+                        if (data.user.userType === 'teacher') {
+                            window.location.href = 'teacher-dashboard.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    }
+                }
+            } catch (error) {
+                // المستخدم غير مسجل الدخول، لا بأس
+            }
+        });
+    </script>
+</body>
+</html>
